@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Cipher Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 30px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+
+        .cipher-selection {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .cipher-btn {
+            padding: 10px 20px;
+            border: 2px solid #3498db;
+            background: white;
+            color: #3498db;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .cipher-btn:hover {
+            background: #ecf0f1;
+        }
+
+        .cipher-btn.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .text-section {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #2c3e50;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 12px;
+            border: 2px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+            resize: vertical;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .controls {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .shift-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .shift-input input {
+            width: 60px;
+            padding: 8px;
+            border: 2px solid #bdc3c7;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .shift-input input:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .btn-encrypt {
+            background: #27ae60;
+            color: white;
+        }
+
+        .btn-encrypt:hover {
+            background: #229954;
+        }
+
+        .btn-decrypt {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-decrypt:hover {
+            background: #c0392b;
+        }
+
+        .btn-clear {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-clear:hover {
+            background: #7f8c8d;
+        }
+
+        .info-box {
+            background: #ecf0f1;
+            padding: 20px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+
+        .info-box h3 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .info-box p {
+            line-height: 1.5;
+            color: #5d6d7e;
+        }
+
+        .key-display {
+            margin-top: 15px;
+            padding: 10px;
+            background: #d5dbdb;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            word-break: break-all;
+            display: none;
+        }
+
+        .copy-btn {
+            margin-top: 5px;
+            padding: 5px 10px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            align-self: flex-start;
+        }
+
+        .copy-btn:hover {
+            background: #2980b9;
+        }
+
+        .message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Text Cipher Tool</h1>
+        <p class="subtitle">Encrypt and decrypt text using different cipher methods</p>
+        
+        <div class="cipher-selection">
+            <button class="cipher-btn active" data-cipher="caesar">Caesar Cipher</button>
+            <button class="cipher-btn" data-cipher="substitution">Substitution</button>
+        </div>
+
+        <div class="main-content">
+            <div class="text-section">
+                <label for="input-text">Input Text:</label>
+                <textarea id="input-text" placeholder="Enter your text here..."></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('input-text')">Copy</button>
+            </div>
+            
+            <div class="text-section">
+                <label for="output-text">Output Text:</label>
+                <textarea id="output-text" placeholder="Result will appear here..." readonly></textarea>
+                <button class="copy-btn" onclick="copyToClipboard('output-text')">Copy</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="shift-input" id="shift-control">
+                <label for="shift-value">Shift:</label>
+                <input type="number" id="shift-value" value="3" min="1" max="25">
+            </div>
+            
+            <div class="buttons">
+                <button class="btn btn-encrypt" onclick="encryptText()">Encrypt</button>
+                <button class="btn btn-decrypt" onclick="decryptText()">Decrypt</button>
+                <button class="btn btn-clear" onclick="clearText()">Clear All</button>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <h3 id="cipher-title">Caesar Cipher</h3>
+            <p id="cipher-description">Shifts each letter by a fixed number of positions in the alphabet. For example, with shift 3: A→D, B→E, C→F.</p>
+            <div class="key-display" id="key-display"></div>
+        </div>
+    </div>
+
+    <div class="message" id="message">Copied to clipboard!</div>
+
+    <script>
+        let currentCipher = 'caesar';
+        let substitutionKey = '';
+
+        const cipherInfo = {
+            caesar: {
+                title: 'Caesar Cipher',
+                description: 'Shifts each letter by a fixed number of positions in the alphabet. For example, with shift 3: A→D, B→E, C→F.'
+            },
+            substitution: {
+                title: 'Substitution Cipher',
+                description: 'Each letter is replaced with a different letter according to a fixed substitution table.'
+            }
+        };
+
+        // Generate random substitution key
+        function generateSubstitutionKey() {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            let shuffled = alphabet.split('').sort(() => Math.random() - 0.5).join('');
+            substitutionKey = shuffled;
+            showSubstitutionKey();
+        }
+
+        function showSubstitutionKey() {
+            const keyDisplay = document.getElementById('key-display');
+            if (currentCipher === 'substitution') {
+                keyDisplay.style.display = 'block';
+                keyDisplay.innerHTML = `Key: A→${substitutionKey[0]}, B→${substitutionKey[1]}, C→${substitutionKey[2]}... (and so on)`;
+            } else {
+                keyDisplay.style.display = 'none';
+            }
+        }
+
+        // Caesar cipher function
+        function caesar(text, shift, decrypt = false) {
+            if (decrypt) shift = 26 - shift;
+            return text.replace(/[A-Za-z]/g, function(char) {
+                let start = char <= 'Z' ? 65 : 97;
+                return String.fromCharCode((char.charCodeAt(0) - start + shift) % 26 + start);
+            });
+        }
+
+        // ROT13 function - REMOVED
+
+        // Substitution cipher function
+        function substitution(text, decrypt = false) {
+            const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            const key = substitutionKey;
+            
+            return text.replace(/[A-Za-z]/g, function(char) {
+                let isUpper = char === char.toUpperCase();
+                char = char.toUpperCase();
+                let index = alphabet.indexOf(char);
+                
+                if (index === -1) return char;
+                
+                let newChar;
+                if (decrypt) {
+                    newChar = alphabet[key.indexOf(char)];
+                } else {
+                    newChar = key[index];
+                }
+                
+                return isUpper ? newChar : newChar.toLowerCase();
+            });
+        }
+
+        // Atbash cipher function - REMOVED
+
+        function encryptText() {
+            const inputText = document.getElementById('input-text').value;
+            const shift = parseInt(document.getElementById('shift-value').value);
+            let result = '';
+
+            switch(currentCipher) {
+                case 'caesar':
+                    result = caesar(inputText, shift);
+                    break;
+                case 'substitution':
+                    if (!substitutionKey) generateSubstitutionKey();
+                    result = substitution(inputText);
+                    break;
+            }
+
+            document.getElementById('output-text').value = result;
+        }
+
+        function decryptText() {
+            const inputText = document.getElementById('input-text').value;
+            const shift = parseInt(document.getElementById('shift-value').value);
+            let result = '';
+
+            switch(currentCipher) {
+                case 'caesar':
+                    result = caesar(inputText, shift, true);
+                    break;
+                case 'substitution':
+                    if (!substitutionKey) {
+                        alert('No substitution key available. Please encrypt text first.');
+                        return;
+                    }
+                    result = substitution(inputText, true);
+                    break;
+            }
+
+            document.getElementById('output-text').value = result;
+        }
+
+        function clearText() {
+            document.getElementById('input-text').value = '';
+            document.getElementById('output-text').value = '';
+        }
+
+        function copyToClipboard(elementId) {
+            const element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            showMessage();
+        }
+
+        function showMessage() {
+            const message = document.getElementById('message');
+            message.style.display = 'block';
+            setTimeout(() => {
+                message.style.display = 'none';
+            }, 2000);
+        }
+
+        function updateCipherInfo() {
+            const info = cipherInfo[currentCipher];
+            document.getElementById('cipher-title').textContent = info.title;
+            document.getElementById('cipher-description').textContent = info.description;
+            
+            const shiftControl = document.getElementById('shift-control');
+            shiftControl.style.display = currentCipher === 'caesar' ? 'flex' : 'none';
+            
+            showSubstitutionKey();
+        }
+
+        // Cipher button event listeners
+        document.querySelectorAll('.cipher-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.cipher-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentCipher = btn.dataset.cipher;
+                updateCipherInfo();
+            });
+        });
+
+        // Initialize
+        updateCipherInfo();
+    </script>
+</body>
+</html>
